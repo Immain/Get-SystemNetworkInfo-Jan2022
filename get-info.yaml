@@ -8,6 +8,9 @@
   gather_facts: yes
   tasks:
   
+##############################################
+#       Panda Data Systems - OS Release      #
+##############################################
   - name: Check OS Release is AlmaLinux
     assert:
       that:
@@ -15,6 +18,9 @@
       - ansible_facts['distribution'] == "AlmaLinux"
       fail_msg: Host {{ ansible_hostname }} does not meet minimal reps
 
+##############################################
+#       Panda Data Systems - Network         #
+##############################################
   - name: Get IPv4 address
     debug:
       msg: "System {{ inventory_hostname }} has address of  {{ ansible_default_ipv4.address }}"
