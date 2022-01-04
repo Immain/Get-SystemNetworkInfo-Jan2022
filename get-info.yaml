@@ -1,0 +1,68 @@
+##############################################
+#       Panda Data Systems - Get Info        #
+##############################################
+---
+- name: PDS Get Info Script
+  hosts: localhost
+  become: true
+  gather_facts: yes
+  tasks:
+  
+  - name: Check OS Release is AlmaLinux
+    assert:
+      that:
+      - ansible_facts['os_family'] == "RedHat"
+      - ansible_facts['distribution'] == "AlmaLinux"
+      fail_msg: Host {{ ansible_hostname }} does not meet minimal reps
+
+  - name: Get IPv4 address
+    debug:
+      msg: "System {{ inventory_hostname }} has address of  {{ ansible_default_ipv4.address }}"
+    when: ansible_default_ipv4.address is defined
+
+  - name: Get IPv4 Netmask
+    debug:
+      msg: "system {{ inventory_hostname }} has Netmask of {{ ansible_default_ipv4.netmask }}"
+    when: ansible_default_ipv4.netmask is defined
+
+  - name: Get IPv4 Gateway
+    debug:
+      msg: "system {{ inventory_hostname }} has gateway address of {{ ansible_default_ipv4.gateway }}"
+    when: ansible_default_ipv4.gateway is defined
+
+  - name: Register System Public IP Address
+    uri:
+      url: https://api.ipify.org?format=json
+      method: get
+    changed_when: false
+    register: public_ip
+    until: public_ip.status == 200
+    retries: 5
+    delay: 10
+
+  - name: print System Public IP Address
+    debug:
+      msg: "{{ public_ip.json.ip }}"
+
+  - name: Get Speedtest Script
+    get_url:
+      url: https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+      dest: /tmp/speedtest
+      force: yes
+
+  - name: Run Speedtest
+    command: python3 /tmp/speedtest --simple
+    register: output
+    changed_when: false
+
+  - name: Ping Speed
+    debug:
+      msg: "{{ output.stdout_lines[0] }}"
+
+  - name: Download Speed
+    debug:
+      msg: "{{ output.stdout_lines[1] }}"
+
+  - name: Upload Speed
+    debug:
+      msg: "{{ output.stdout_lines[2] }}"
