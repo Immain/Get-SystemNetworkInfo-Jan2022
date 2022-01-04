@@ -19,6 +19,14 @@
       fail_msg: Host {{ ansible_hostname }} does not meet minimal reps
 
 ##############################################
+#          Panda Data Systems - Other        #
+##############################################
+
+  - name: Get System Date and Time
+    debug:
+      var=ansible_date_time
+
+##############################################
 #       Panda Data Systems - Network         #
 ##############################################
   - name: Get IPv4 address
